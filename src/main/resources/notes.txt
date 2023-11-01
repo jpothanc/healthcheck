@@ -1,0 +1,7 @@
+- Ability to do health check on microservices, databases and process
+- DataSources will be configured for microservices and databases
+- For process, an agent should written, which will locally scan task manager or try using process management tools like PM2
+- Service will scan the health every 5-10 mins( configurable). If there is change in state of any previous state notify the
+  clients of the effected process. It could send the whole payload or the delta payload(only process which are affected) based on configurations
+- If needed, it can also send an email
+- It will support rest api and a websocket for real time notifications
