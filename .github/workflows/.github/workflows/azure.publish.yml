@@ -1,0 +1,36 @@
+name: Build and Deploy Java JAR file to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+           distribution: 'temurin' # See 'Supported distributions' for available options
+           java-version: '17'
+
+      - name: Build JAR file
+        run: mvn clean package
+
+      - name: Upload JAR file to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: healthcheck-ib
+          package: target/healthcheck-0.0.1-SNAPSHOT.jar
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+
+        
+
+
+  
+
+        
