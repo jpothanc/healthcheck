@@ -1,7 +1,7 @@
 package com.ibit.config;
 
 
-import com.ibit.models.DatasourceSetting;
+import com.ibit.models.DataSourceInfo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Configuration;
@@ -17,5 +17,5 @@ import java.util.Map;
 public class AppConfig {
     private boolean enableHealthCheckTimer;
     private int healthCheckInterval;
-    private Map<String, DatasourceSetting> dataSources = new HashMap<>();
+    private Map<String, DataSourceInfo> dataSources = new HashMap<>();
 }

@@ -21,16 +21,19 @@ public class HealthController {
 
     @Autowired
     private HealthCheckService healthCheckService;
+
     @GetMapping("/")
-    public String info(){
+    public String info() {
         return "Health Check Service";
     }
+
     @GetMapping("/ping")
-    public ResponseEntity<String> health(){
+    public ResponseEntity<String> health() {
         return ResponseEntity.ok("healthy");
     }
+
     @GetMapping("/check")
-    public Mono<ResponseEntity<HealthCheckInfoList>> getHealth(){
+    public Mono<ResponseEntity<HealthCheckInfoList>> getHealth() {
 
         try {
             return Mono.just(ResponseEntity.ok(healthCheckService.getHealthCheck()));
@@ -41,7 +44,7 @@ public class HealthController {
 
     @MessageMapping(Constants.HEALTH_CHECK_SOCKET_INCOMING_MESSAGE)
     @SendTo(Constants.HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION)
-    public HealthCheckInfoList notification(HealthCheckInfoList notification){
+    public HealthCheckInfoList notification(HealthCheckInfoList notification) {
 
         try {
             System.out.println("Sending Notification:" + notification.getHealthCheckInfoList());

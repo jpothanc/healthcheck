@@ -13,7 +13,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableScheduling
-public class HealthCheckServiceImpl implements HealthCheckService{
+public class HealthCheckServiceImpl implements HealthCheckService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -42,7 +41,7 @@ public class HealthCheckServiceImpl implements HealthCheckService{
     private final ResourceLoader resourceLoader;
     private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
-    private  Disposable disposable;
+    private Disposable disposable;
 
     public HealthCheckServiceImpl(Environment environment, ResourceLoader resourceLoader, ObjectMapper objectMapper) {
         this.environment = environment;
@@ -54,11 +53,10 @@ public class HealthCheckServiceImpl implements HealthCheckService{
     public void start() {
         try {
             logger.info("Starting HealthCheckService.");
-
             configLoader.loadConfig();
-            logger.info("Health Check Timer Enabled = " + appConfig.isEnableHealthCheckTimer());
 
-            if(appConfig.isEnableHealthCheckTimer()) {
+            logger.info("Health Check Timer Enabled = " + appConfig.isEnableHealthCheckTimer());
+            if (appConfig.isEnableHealthCheckTimer()) {
                 enableHealthCheckTimer();
             }
 
@@ -66,19 +64,15 @@ public class HealthCheckServiceImpl implements HealthCheckService{
             logger.error("HealthCheckService Initialization failed." + e.getMessage());
         }
     }
+
     @Override
     public void stop() {
         this.disposable.dispose();
         logger.info("Stopping HealthCheckService.");
     }
 
-    private void enableHealthCheckTimer(){
-        this.disposable = Observable.interval(appConfig.getHealthCheckInterval(),
-                        appConfig.getHealthCheckInterval(), TimeUnit.SECONDS)
-                .subscribe(
-                        count -> runTimelyHealthCheck(),
-                        throwable -> System.err.println("Error: " + throwable)
-                );
+    private void enableHealthCheckTimer() {
+        this.disposable = Observable.interval(appConfig.getHealthCheckInterval(), appConfig.getHealthCheckInterval(), TimeUnit.SECONDS).subscribe(count -> runTimelyHealthCheck(), throwable -> System.err.println("Error: " + throwable));
     }
 
     @Override
@@ -86,27 +80,26 @@ public class HealthCheckServiceImpl implements HealthCheckService{
         String configFile = "classpath:" + "health.response" + ".json";
         Resource resource = resourceLoader.getResource(configFile);
         var healthCheckInfoList = new HealthCheckInfoList();
-        healthCheckInfoList.setHealthCheckInfoList(objectMapper.readValue(resource.getInputStream(), new TypeReference<List<HealthCheckInfo>>() {}));
+        healthCheckInfoList.setHealthCheckInfoList(objectMapper.readValue(resource.getInputStream(), new TypeReference<List<HealthCheckInfo>>() {
+        }));
         return healthCheckInfoList;
     }
 
-    private void runTimelyHealthCheck(){
+    private void runTimelyHealthCheck() {
         logger.info("getDataSources = " + appConfig.getDataSources().size());
-        appConfig.getDataSources().keySet().forEach(x-> System.out.println(x.toString()));
+        appConfig.getDataSources().keySet().forEach(x -> System.out.println(x.toString()));
         var dataSources = appConfig.getDataSources();
-        if(dataSources == null)
-            return;
+        if (dataSources == null) return;
 
         var healthCheckInfoList = new HealthCheckInfoList();
 
-        for (var key: dataSources.keySet()) {
+        for (var key : dataSources.keySet()) {
             var ds = appConfig.getDataSources().get(key);
-            if(ds == null)
-                continue;
+            if (ds == null) continue;
             var checker = healthCheckFactory.getHealthChecker(ds);
 
             try {
-               var res = checker.get().ping().get();
+                var res = checker.get().ping().get();
                 healthCheckInfoList.getHealthCheckInfoList().add(res);
                 System.out.println("Health Check Result for " + key + " = " + res);
 
@@ -118,6 +111,7 @@ public class HealthCheckServiceImpl implements HealthCheckService{
             sendNotification(healthCheckInfoList);
         }
     }
+
     public void sendNotification(HealthCheckInfoList healthCheckInfoList) {
         logger.info("Sending HealthCheck Notification");
         messagingTemplate.convertAndSend(Constants.HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION, healthCheckInfoList);

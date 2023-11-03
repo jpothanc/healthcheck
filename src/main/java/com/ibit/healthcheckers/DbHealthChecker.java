@@ -1,6 +1,6 @@
 package com.ibit.healthcheckers;
 
-import com.ibit.models.DatasourceSetting;
+import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
 import org.springframework.stereotype.Component;
 
@@ -10,21 +10,23 @@ import java.util.concurrent.CompletableFuture;
 @Component("database")
 public class DbHealthChecker implements HealthChecker {
 
-    private DatasourceSetting setting;
+    private DataSourceInfo dataSourceInfo;
+
     @Override
-    public HealthChecker setRequest(DatasourceSetting setting) {
-        this.setting = setting;
+    public HealthChecker setDataSource(DataSourceInfo setting) {
+        this.dataSourceInfo = setting;
         return this;
     }
 
     @Override
     public CompletableFuture<HealthCheckInfo> ping() {
-        return CompletableFuture.supplyAsync(()->pingInternal(this.setting));
-
+        return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
 
-    private HealthCheckInfo pingInternal(DatasourceSetting setting) {
+    private HealthCheckInfo pingInternal(DataSourceInfo setting) {
+
         var res = new HealthCheckInfo(setting);
+
         try (Connection connection = DriverManager.getConnection(
                 setting.getConnectionString(),
                 setting.getUsername(),
@@ -36,11 +38,8 @@ public class DbHealthChecker implements HealthChecker {
                 String sqlQuery = setting.getHealthQuery();
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 ResultSetMetaData metaData = resultSet.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                Long rowId = 0L;
-                // Process the query results
-                while (resultSet.next()) {
 
+                while (resultSet.next()) {
                 }
 
                 resultSet.close();

@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class DatasourceSetting {
+public class DataSourceInfo {
     private String name;
     private String description;
     private String group;

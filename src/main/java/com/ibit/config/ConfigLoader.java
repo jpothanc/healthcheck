@@ -39,6 +39,7 @@ public class ConfigLoader {
         var appConfig = objectMapper.readValue(resource.getInputStream(), AppConfig.class);
         override(appConfig);
     }
+
     private void override(AppConfig localConfig) {
         appConfig.setHealthCheckInterval(localConfig.getHealthCheckInterval());
         appConfig.setDataSources(localConfig.getDataSources());

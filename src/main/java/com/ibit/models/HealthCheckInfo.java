@@ -21,7 +21,7 @@ public class HealthCheckInfo {
     public HealthCheckInfo() {
         status = "down";
     }
-    public HealthCheckInfo(DatasourceSetting setting) {
+    public HealthCheckInfo(DataSourceInfo setting) {
         status = "down";
         name = setting.getName();
         description = setting.getDescription();

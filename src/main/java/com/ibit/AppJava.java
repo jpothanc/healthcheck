@@ -9,15 +9,17 @@ import org.springframework.context.ApplicationContextAware;
 
 @SpringBootApplication
 public class AppJava implements ApplicationContextAware {
-	private static ApplicationContext applicationContext;
-	public static void main(String[] args) {
-		SpringApplication.run(AppJava.class, args);
-		var app = applicationContext.getBean(HealthCheckService.class);
-		app.start();
-	}
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		AppJava.applicationContext = applicationContext;
-	}
+    private static ApplicationContext applicationContext;
+
+    public static void main(String[] args) {
+        SpringApplication.run(AppJava.class, args);
+        var app = applicationContext.getBean(HealthCheckService.class);
+        app.start();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        AppJava.applicationContext = applicationContext;
+    }
 
 }
