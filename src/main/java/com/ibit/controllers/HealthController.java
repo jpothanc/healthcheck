@@ -1,21 +1,18 @@
 package com.ibit.controllers;
 
-import com.ibit.models.HealthCheckInfo;
+import com.ibit.internal.Constants;
 import com.ibit.models.HealthCheckInfoList;
 import com.ibit.services.HealthCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.List;
 
 
 @RestController
@@ -42,8 +39,8 @@ public class HealthController {
         }
     }
 
-    @MessageMapping("/sendNotification")
-    @SendTo("/topic/notifications")
+    @MessageMapping(Constants.HEALTH_CHECK_SOCKET_INCOMING_MESSAGE)
+    @SendTo(Constants.HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION)
     public HealthCheckInfoList notification(HealthCheckInfoList notification){
 
         try {

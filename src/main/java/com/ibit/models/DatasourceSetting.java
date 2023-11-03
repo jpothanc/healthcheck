@@ -9,7 +9,8 @@ import lombok.ToString;
 @ToString
 public class DatasourceSetting {
     private String name;
-    private String service;
+    private String description;
+    private String group;
     private String type;
     private String connectionString;
     private String username;

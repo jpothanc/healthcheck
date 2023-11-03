@@ -23,7 +23,7 @@ public class HealthCheckFactoryImpl implements HealthCheckFactory{
     @Override
     public Optional<HealthChecker> getHealthChecker(DatasourceSetting setting) {
 
-        switch (setting.getService())
+        switch (setting.getGroup())
         {
             case "web": {
                 return getWebHealthChecker(setting);

@@ -22,7 +22,7 @@ public class WebHealthChecker implements HealthChecker {
         return CompletableFuture.supplyAsync(()->pingInternal(this.setting));
     }
     private HealthCheckInfo pingInternal(DatasourceSetting setting) {
-        var res = new HealthCheckInfo();
+        var res = new HealthCheckInfo(setting);
 
         try {
             URL url = new URL(setting.getHealthQuery());

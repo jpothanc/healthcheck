@@ -24,7 +24,7 @@ public class DbHealthChecker implements HealthChecker {
     }
 
     private HealthCheckInfo pingInternal(DatasourceSetting setting) {
-        var res = new HealthCheckInfo();
+        var res = new HealthCheckInfo(setting);
         try (Connection connection = DriverManager.getConnection(
                 setting.getConnectionString(),
                 setting.getUsername(),

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibit.config.AppConfig;
 import com.ibit.config.ConfigLoader;
 import com.ibit.factory.HealthCheckFactory;
+import com.ibit.internal.Constants;
 import com.ibit.models.HealthCheckInfo;
 import com.ibit.models.HealthCheckInfoList;
 import io.reactivex.rxjava3.core.Observable;
@@ -109,7 +110,7 @@ public class HealthCheckServiceImpl implements HealthCheckService{
             try {
                var res = checker.get().ping().get();
                 healthCheckInfoList.getHealthCheckInfoList().add(res);
-                System.out.println("Health Check Result for " + key + " = " + res.status);
+                System.out.println("Health Check Result for " + key + " = " + res);
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -121,6 +122,6 @@ public class HealthCheckServiceImpl implements HealthCheckService{
     }
     public void sendNotification(HealthCheckInfoList healthCheckInfoList) {
         logger.info("Sending HealthCheck Notification");
-        messagingTemplate.convertAndSend("/topic/notifications", healthCheckInfoList);
+        messagingTemplate.convertAndSend(Constants.HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION, healthCheckInfoList);
     }
 }
