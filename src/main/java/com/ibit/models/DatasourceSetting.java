@@ -2,10 +2,13 @@ package com.ibit.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class DatasourceSetting {
+    private String name;
     private String service;
     private String type;
     private String connectionString;

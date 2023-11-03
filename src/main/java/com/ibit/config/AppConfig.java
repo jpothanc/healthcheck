@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class AppConfig {
+    private boolean enableHealthCheckTimer;
     private int healthCheckInterval;
     private Map<String, DatasourceSetting> dataSources = new HashMap<>();
-
 }

@@ -13,4 +13,9 @@ public class HealthCheckInfo {
     public String error;
     public String link;
     public String timestamp;
+
+    public HealthCheckInfo() {
+        status = "down";
+    }
+
 }

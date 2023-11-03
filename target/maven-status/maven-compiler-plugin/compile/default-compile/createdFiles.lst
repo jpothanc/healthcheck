@@ -1,8 +1,11 @@
-com\ibit\models\HealthCheckInfo.class
-com\ibit\services\HealthCheckServiceImpl.class
+com\ibit\config\ConfigLoader.class
 com\ibit\controllers\HealthController.class
 com\ibit\services\HealthCheckServiceImpl$1.class
 com\ibit\services\HealthCheckService.class
-com\ibit\models\HealthCheckInfoList.class
 com\ibit\websockets\WebSocketConfig.class
 com\ibit\AppJava.class
+com\ibit\models\HealthCheckInfo.class
+com\ibit\services\HealthCheckServiceImpl.class
+com\ibit\models\DatasourceSetting.class
+com\ibit\models\HealthCheckInfoList.class
+com\ibit\config\AppConfig.class

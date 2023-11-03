@@ -42,6 +42,7 @@ public class ConfigLoader {
     private void override(AppConfig localConfig) {
         appConfig.setHealthCheckInterval(localConfig.getHealthCheckInterval());
         appConfig.setDataSources(localConfig.getDataSources());
+        appConfig.setEnableHealthCheckTimer(localConfig.isEnableHealthCheckTimer());
     }
 }
 
