@@ -13,13 +13,6 @@ import java.util.Optional;
 @Service
 public class HealthCheckFactoryImpl implements HealthCheckFactory{
 
-
-    private final ApplicationContext applicationContext;
-    @Autowired
-    public HealthCheckFactoryImpl(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
     @Override
     public Optional<HealthChecker> getHealthChecker(DataSourceInfo setting) {
 

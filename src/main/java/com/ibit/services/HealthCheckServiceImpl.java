@@ -2,6 +2,7 @@ package com.ibit.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ibit.cache.MemoryCache;
 import com.ibit.config.AppConfig;
 import com.ibit.config.ConfigLoader;
 import com.ibit.factory.HealthCheckFactory;
@@ -37,6 +38,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     AppConfig appConfig;
     @Autowired
     HealthCheckFactory healthCheckFactory;
+
+    @Autowired
+    MemoryCache<String, Object> memoryCache;
+
     private final Environment environment;
     private final ResourceLoader resourceLoader;
     private final ObjectMapper objectMapper;
@@ -92,6 +97,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         if (dataSources == null) return;
 
         var healthCheckInfoList = new HealthCheckInfoList();
+        var previousHc = (HealthCheckInfoList) memoryCache.get("hc") ;
+        if(previousHc != null)  {
+            System.out.println("Previous Count: " + previousHc.getHealthCheckInfoList().size());
+        }
 
         for (var key : dataSources.keySet()) {
             var ds = appConfig.getDataSources().get(key);
@@ -108,6 +117,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
+            memoryCache.put("hc", healthCheckInfoList) ;
             sendNotification(healthCheckInfoList);
         }
     }
