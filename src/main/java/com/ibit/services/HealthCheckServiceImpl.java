@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 public class HealthCheckServiceImpl implements HealthCheckService{
 
-    @Value("${scheduled.fixedDelay}")
-    private long fixedDelay;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
