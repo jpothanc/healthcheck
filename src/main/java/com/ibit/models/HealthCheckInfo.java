@@ -13,21 +13,23 @@ public class HealthCheckInfo {
     public String name;
     public String description;
     public String group;
-    public String status;
+    public boolean isHealthy;
     public String error;
     public String link;
     public String timestamp;
+    public String elapsed;
 
     public HealthCheckInfo() {
-        status = "down";
+        isHealthy = false;
     }
     public HealthCheckInfo(DataSourceInfo setting) {
-        status = "down";
+        isHealthy = false;
         name = setting.getName();
         description = setting.getDescription();
         group = setting.getGroup();
         timestamp = getCurrentTime();
         error = "";
         link = "";
+        elapsed="";
     }
 }

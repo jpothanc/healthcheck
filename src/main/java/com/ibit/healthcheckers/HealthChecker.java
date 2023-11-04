@@ -8,5 +8,9 @@ import java.util.concurrent.CompletableFuture;
 public interface HealthChecker {
     HealthChecker setDataSource(DataSourceInfo setting);
 
+    DataSourceInfo getDataSource();
+
+    String getName();
+
     CompletableFuture<HealthCheckInfo> ping();
 }

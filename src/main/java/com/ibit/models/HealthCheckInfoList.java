@@ -1,17 +1,56 @@
 package com.ibit.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static com.ibit.internal.Helper.getCurrentTime;
 
 @Setter
 @Getter
 public class HealthCheckInfoList {
 
-    private List<HealthCheckInfo> healthCheckInfoList;
+    private boolean isHealthy;
+    private int items;
+    private int healthyItems;
+    private int unhealthyItems;
+    private String timeStamp;
+    private String elapsed;
+
+    @JsonProperty("healthCheckItems")
+    private List<HealthCheckInfo> healthCheckInfoSotredList;
+
+    @JsonIgnore
+    private Map<String, HealthCheckInfo> healthCheckInfoMap;
+
+
     public HealthCheckInfoList() {
-        this.healthCheckInfoList = new ArrayList<>(50);
+        this.healthCheckInfoMap = new HashMap<>();
+        this.healthCheckInfoSotredList = new ArrayList<>(50);
+    }
+
+    public List<HealthCheckInfo> toResult(){
+
+        this.healthCheckInfoSotredList.clear();
+        setTimeStamp(getCurrentTime());
+        setItems(healthCheckInfoMap.size());
+        setUnhealthyItems(items - healthyItems);
+
+        this.healthCheckInfoSotredList = new ArrayList<>(this.healthCheckInfoMap.values());
+        Comparator<HealthCheckInfo> comparator = (o1, o2) -> {
+
+            if (!o1.isHealthy && o2.isHealthy) {
+                return -1; // o1 comes before o2
+            } else if (o1.isHealthy && !o2.isHealthy) {
+                return 1; // o2 comes before o1
+            } else {
+                return 0; // o1 and o2 are considered equal
+            }
+        };
+        this.healthCheckInfoSotredList.sort(comparator);
+        return  this.healthCheckInfoSotredList;
     }
 }

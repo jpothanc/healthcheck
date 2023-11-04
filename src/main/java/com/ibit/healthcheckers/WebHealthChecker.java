@@ -8,6 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
+import static com.ibit.internal.Helper.getElapsedTime;
+
 @Component("web")
 public class WebHealthChecker implements HealthChecker {
     private DataSourceInfo dataSourceInfo;
@@ -19,12 +21,24 @@ public class WebHealthChecker implements HealthChecker {
     }
 
     @Override
+    public DataSourceInfo getDataSource() {
+        return this.dataSourceInfo;
+    }
+
+    @Override
+    public String getName() {
+        return this.dataSourceInfo.getName();
+    }
+
+    @Override
     public CompletableFuture<HealthCheckInfo> ping() {
         return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
 
     private HealthCheckInfo pingInternal(DataSourceInfo setting) {
+
         var res = new HealthCheckInfo(setting);
+        long startTime = System.currentTimeMillis();
 
         try {
             URL url = new URL(setting.getHealthQuery());
@@ -34,7 +48,8 @@ public class WebHealthChecker implements HealthChecker {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                res.status = "up";
+                res.isHealthy = true;
+                res.setElapsed(getElapsedTime(startTime));
                 return res;
             }
             connection.disconnect();

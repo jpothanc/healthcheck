@@ -25,7 +25,7 @@ public class HealthCheckFactoryImpl implements HealthCheckFactory{
                 return getDbHealthChecker(setting);
             }
             default:
-                return Optional.empty();
+                return Optional.of(null);
         }
     }
     private Optional<HealthChecker> getWebHealthChecker(DataSourceInfo setting){

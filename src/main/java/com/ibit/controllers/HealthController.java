@@ -47,7 +47,7 @@ public class HealthController {
     public HealthCheckInfoList notification(HealthCheckInfoList notification) {
 
         try {
-            System.out.println("Sending Notification:" + notification.getHealthCheckInfoList());
+            System.out.println("Sending Notification:" + notification.getHealthCheckInfoMap());
             return notification;
         } catch (Exception e) {
             throw new RuntimeException(e);

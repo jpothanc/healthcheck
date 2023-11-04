@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import java.sql.*;
 import java.util.concurrent.CompletableFuture;
 
+import static com.ibit.internal.Helper.getElapsedTime;
+
 @Component("database")
 public class DbHealthChecker implements HealthChecker {
 
@@ -19,6 +21,16 @@ public class DbHealthChecker implements HealthChecker {
     }
 
     @Override
+    public DataSourceInfo getDataSource() {
+        return this.dataSourceInfo;
+    }
+
+    @Override
+    public String getName() {
+        return this.dataSourceInfo.getName();
+    }
+
+    @Override
     public CompletableFuture<HealthCheckInfo> ping() {
         return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
@@ -26,6 +38,7 @@ public class DbHealthChecker implements HealthChecker {
     private HealthCheckInfo pingInternal(DataSourceInfo setting) {
 
         var res = new HealthCheckInfo(setting);
+        long startTime = System.currentTimeMillis();
 
         try (Connection connection = DriverManager.getConnection(
                 setting.getConnectionString(),
@@ -44,7 +57,8 @@ public class DbHealthChecker implements HealthChecker {
 
                 resultSet.close();
                 statement.close();
-                res.status = "up";
+                res.isHealthy = true;
+                res.setElapsed(getElapsedTime(startTime));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
