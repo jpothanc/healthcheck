@@ -3,6 +3,8 @@ package com.ibit.controllers;
 import com.ibit.internal.Constants;
 import com.ibit.models.HealthCheckInfoList;
 import com.ibit.services.HealthCheckService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -21,6 +23,7 @@ public class HealthController {
 
     @Autowired
     private HealthCheckService healthCheckService;
+    private static final Logger logger = LoggerFactory.getLogger(HealthController.class);
 
     @GetMapping("/")
     public String info() {
@@ -47,7 +50,7 @@ public class HealthController {
     public HealthCheckInfoList notification(HealthCheckInfoList notification) {
 
         try {
-            System.out.println("Sending Notification:" + notification.getHealthCheckInfoMap());
+            logger.info("Sending Notification:" + notification.getHealthCheckInfoMap());
             return notification;
         } catch (Exception e) {
             throw new RuntimeException(e);

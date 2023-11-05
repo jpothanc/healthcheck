@@ -17,14 +17,16 @@ import java.io.IOException;
 public class ConfigLoader {
     @Value("${spring.profiles.active}")
     private String activeProfile;
+    @Autowired
     private AppConfig appConfig;
+
     private final Environment environment;
     private final ResourceLoader resourceLoader;
     private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
     @Autowired
-    public ConfigLoader(Environment environment, ResourceLoader resourceLoader, ObjectMapper objectMapper, AppConfig appConfig) {
+    public ConfigLoader(Environment environment, ResourceLoader resourceLoader, ObjectMapper objectMapper) {
         this.environment = environment;
         this.resourceLoader = resourceLoader;
         this.objectMapper = objectMapper;

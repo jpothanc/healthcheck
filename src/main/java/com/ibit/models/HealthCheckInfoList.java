@@ -40,6 +40,11 @@ public class HealthCheckInfoList {
         setUnhealthyItems(items - healthyItems);
 
         this.healthCheckInfoSotredList = new ArrayList<>(this.healthCheckInfoMap.values());
+        sortOnHealthStatus(this.healthCheckInfoSotredList);
+        return  this.healthCheckInfoSotredList;
+    }
+
+    private void sortOnHealthStatus(List<HealthCheckInfo> healthCheckInfoList){
         Comparator<HealthCheckInfo> comparator = (o1, o2) -> {
 
             if (!o1.isHealthy && o2.isHealthy) {
@@ -51,6 +56,5 @@ public class HealthCheckInfoList {
             }
         };
         this.healthCheckInfoSotredList.sort(comparator);
-        return  this.healthCheckInfoSotredList;
     }
 }

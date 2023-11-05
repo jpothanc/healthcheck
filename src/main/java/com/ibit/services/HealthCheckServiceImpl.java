@@ -119,12 +119,17 @@ public class HealthCheckServiceImpl implements HealthCheckService {
                     var prev = previousHc.getHealthCheckInfoMap().get(key);
                     alert = alert && (prev.isHealthy != res.isHealthy);
                 }
+                if(healthCheckInfoList.getHealthCheckInfoMap().containsKey(key))
+                    throw new Exception("Duplicate items with name :" + key);
+
                 healthCheckInfoList.getHealthCheckInfoMap().put(key, res);
                 System.out.println("Health Check Result for " + key + " = " + res);
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 

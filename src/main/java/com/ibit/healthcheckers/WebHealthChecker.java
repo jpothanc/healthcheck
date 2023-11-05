@@ -2,6 +2,9 @@ package com.ibit.healthcheckers;
 
 import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
+import com.ibit.services.HealthCheckServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
@@ -13,6 +16,8 @@ import static com.ibit.internal.Helper.getElapsedTime;
 @Component("web")
 public class WebHealthChecker implements HealthChecker {
     private DataSourceInfo dataSourceInfo;
+    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
+
 
     @Override
     public HealthChecker setDataSource(DataSourceInfo setting) {
@@ -54,7 +59,8 @@ public class WebHealthChecker implements HealthChecker {
             }
             connection.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            res.error = "Ping Failed :" + e.getMessage();
+            logger.error(res.error);
         }
 
         return res;

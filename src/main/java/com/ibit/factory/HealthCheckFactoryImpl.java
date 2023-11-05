@@ -3,6 +3,7 @@ package com.ibit.factory;
 import com.ibit.healthcheckers.DbHealthChecker;
 import com.ibit.healthcheckers.HealthChecker;
 import com.ibit.healthcheckers.WebHealthChecker;
+import com.ibit.internal.Constants;
 import com.ibit.models.DataSourceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -14,26 +15,26 @@ import java.util.Optional;
 public class HealthCheckFactoryImpl implements HealthCheckFactory{
 
     @Override
-    public Optional<HealthChecker> getHealthChecker(DataSourceInfo setting) {
+    public Optional<HealthChecker> getHealthChecker(DataSourceInfo dataSourceInfo) {
 
-        switch (setting.getGroup())
+        switch (dataSourceInfo.getGroup())
         {
-            case "web": {
-                return getWebHealthChecker(setting);
+            case Constants.HEALTH_CHECK_WEB_GROUP: {
+                return getWebHealthChecker(dataSourceInfo);
             }
-            case "database":{
-                return getDbHealthChecker(setting);
+            case Constants.HEALTH_CHECK_DB_GROUP:{
+                return getDbHealthChecker(dataSourceInfo);
             }
             default:
-                return Optional.of(null);
+                return Optional.empty();
         }
     }
-    private Optional<HealthChecker> getWebHealthChecker(DataSourceInfo setting){
-        var checker = new WebHealthChecker().setDataSource(setting);
+    private Optional<HealthChecker> getWebHealthChecker(DataSourceInfo dataSourceInfo){
+        var checker = new WebHealthChecker().setDataSource(dataSourceInfo);
         return Optional.of(checker);
     }
-    private Optional<HealthChecker> getDbHealthChecker(DataSourceInfo setting){
-        var checker = new DbHealthChecker().setDataSource(setting);
+    private Optional<HealthChecker> getDbHealthChecker(DataSourceInfo dataSourceInfo){
+        var checker = new DbHealthChecker().setDataSource(dataSourceInfo);
         return Optional.of(checker);
     }
 }
