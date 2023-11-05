@@ -17,7 +17,6 @@ import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -53,7 +52,7 @@ public class HealthCheckServiceTests extends BaseTests {
             var hc = healthCheckService.getHealthCheck();
 
             // Assert
-            var pair = getTestDataSourceNames(new String[] { });
+            var pair = getTestDataSourceNames(new String[]{});
             assertTrue(validateHealthCheckItems(hc, pair.getValue0(), pair.getValue1()));
 
         } catch (IOException e) {
@@ -65,7 +64,7 @@ public class HealthCheckServiceTests extends BaseTests {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"vision","productService"})
+    @ValueSource(strings = {"vision", "productService"})
     public void Health_Check_Should_Return_Failure_For_InValid_DataSources(String unhealthyDs) {
 
         // Arrange
@@ -81,7 +80,7 @@ public class HealthCheckServiceTests extends BaseTests {
             var hc = healthCheckService.getHealthCheck();
 
             // Assert
-            var pair = getTestDataSourceNames(new String[] {unhealthyDs});
+            var pair = getTestDataSourceNames(new String[]{unhealthyDs});
             assertTrue(validateHealthCheckItems(hc, pair.getValue0(), pair.getValue1()));
 
         } catch (IOException e) {

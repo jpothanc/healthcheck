@@ -24,10 +24,10 @@ public class HealthCheckFactoryTests extends BaseTests {
             fail("Unexpected group: " + group);
         }
         assertEquals(checker.getName(), group + "name");
-       assertTrue(checker.getDataSource() != null);
-        assertEquals(checker.getDataSource().getDescription(),  group + "description");
+        assertTrue(checker.getDataSource() != null);
+        assertEquals(checker.getDataSource().getDescription(), group + "description");
         assertEquals(checker.getDataSource().getHealthQuery(), group + "query");
-        assertEquals(checker.getDataSource().getConnectionString(),  group + "connectionString");
+        assertEquals(checker.getDataSource().getConnectionString(), group + "connectionString");
 
     }
 
