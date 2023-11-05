@@ -9,6 +9,7 @@ import com.ibit.models.HealthCheckInfoList;
 import com.ibit.models.HealthCheckerInstances;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,27 +104,29 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         boolean isHealthy = true;
         boolean alert = false;
         int healthyItems = 0;
+        int itemsChecked = 0;
         long startTime = System.currentTimeMillis();
         for (var checker : healthCheckerInstances.getHealthCheckers()) {
 
             try {
                 var key = checker.getName();
                 var res = checker.ping().get();
-                if (res.isHealthy)
+                if (res.isHealthy())
                     healthyItems++;
 
-                isHealthy = isHealthy && res.isHealthy;
+                isHealthy = isHealthy && res.isHealthy();
 
 
                 if (previousHc != null && previousHc.getHealthCheckInfoMap().containsKey(key)) {
                     var prev = previousHc.getHealthCheckInfoMap().get(key);
-                    alert = alert && (prev.isHealthy != res.isHealthy);
+                    alert = alert && (prev.isHealthy() != res.isHealthy());
                 }
                 if(healthCheckInfoList.getHealthCheckInfoMap().containsKey(key))
-                    throw new Exception("Duplicate items with name :" + key);
+                    continue;
 
                 healthCheckInfoList.getHealthCheckInfoMap().put(key, res);
-                System.out.println("Health Check Result for " + key + " = " + res);
+                itemsChecked++;
+                logger.info("Health Check Result for " + key + " = " + res);
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -136,6 +139,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
         healthCheckInfoList.setHealthy(isHealthy);
         healthCheckInfoList.setElapsed(getElapsedTime(startTime));
+        healthCheckInfoList.setItems(itemsChecked);
         healthCheckInfoList.setHealthyItems(healthyItems);
         healthCheckInfoList.toResult();
 

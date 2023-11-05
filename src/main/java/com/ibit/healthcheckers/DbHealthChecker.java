@@ -62,12 +62,14 @@ public class DbHealthChecker implements HealthChecker {
 
                 resultSet.close();
                 statement.close();
-                res.isHealthy = true;
-                res.setElapsed(getElapsedTime(startTime));
+                res.setHealthy(true);
+
             }
         } catch (SQLException e) {
-            res.error = "Ping Failed :" + e.getMessage();
-            logger.error(res.error);
+            res.setError("Ping Failed :" + e.getMessage());
+            logger.error(res.getError());
+        }finally {
+            res.setElapsed(getElapsedTime(startTime));
         }
 
         return res;

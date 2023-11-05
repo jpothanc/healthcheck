@@ -36,7 +36,6 @@ public class HealthCheckInfoList {
 
         this.healthCheckInfoSotredList.clear();
         setTimeStamp(getCurrentTime());
-        setItems(healthCheckInfoMap.size());
         setUnhealthyItems(items - healthyItems);
 
         this.healthCheckInfoSotredList = new ArrayList<>(this.healthCheckInfoMap.values());
@@ -47,9 +46,9 @@ public class HealthCheckInfoList {
     private void sortOnHealthStatus(List<HealthCheckInfo> healthCheckInfoList){
         Comparator<HealthCheckInfo> comparator = (o1, o2) -> {
 
-            if (!o1.isHealthy && o2.isHealthy) {
+            if (!o1.isHealthy() && o2.isHealthy()) {
                 return -1; // o1 comes before o2
-            } else if (o1.isHealthy && !o2.isHealthy) {
+            } else if (o1.isHealthy() && !o2.isHealthy()) {
                 return 1; // o2 comes before o1
             } else {
                 return 0; // o1 and o2 are considered equal

@@ -53,14 +53,15 @@ public class WebHealthChecker implements HealthChecker {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                res.isHealthy = true;
-                res.setElapsed(getElapsedTime(startTime));
-                return res;
+                res.setHealthy(true);
             }
             connection.disconnect();
         } catch (Exception e) {
-            res.error = "Ping Failed :" + e.getMessage();
-            logger.error(res.error);
+            res.setError("Ping Failed :" + e.getMessage());
+            logger.error(res.getError());
+        }
+        finally {
+            res.setElapsed(getElapsedTime(startTime));
         }
 
         return res;

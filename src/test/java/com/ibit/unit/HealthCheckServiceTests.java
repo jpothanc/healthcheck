@@ -6,6 +6,8 @@ import com.ibit.config.ConfigLoader;
 import com.ibit.services.HealthCheckService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +40,7 @@ public class HealthCheckServiceTests extends BaseTests {
 
     @Test
     public void Health_Check_Should_Return_Success_For_Valid_DataSources() {
+
         // Arrange
         try {
             Mockito.doAnswer(in -> {
@@ -50,14 +53,8 @@ public class HealthCheckServiceTests extends BaseTests {
             var hc = healthCheckService.getHealthCheck();
 
             // Assert
-            assertEquals(hc.isHealthy(), true);
-            var itemsToCheck = appConfig.getDataSources().size();
-            assertTrue(hc.getItems() == itemsToCheck);
-            assertTrue(hc.getHealthyItems() == itemsToCheck);
-            assertTrue(hc.getUnhealthyItems() == 0);
-            assertTrue(!hc.getElapsed().isEmpty());
-            assertTrue(!hc.getTimeStamp().isEmpty());
-
+            var pair = getTestDataSourceNames(new String[] { });
+            assertTrue(validateHealthCheckItems(hc, pair.getValue0(), pair.getValue1()));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -67,13 +64,15 @@ public class HealthCheckServiceTests extends BaseTests {
 
     }
 
-    @Test
-    public void Health_Check_Should_Return_Failure_For_InValid_DataSources() {
+    @ParameterizedTest
+    @ValueSource(strings = {"vision","productService"})
+    public void Health_Check_Should_Return_Failure_For_InValid_DataSources(String unhealthyDs) {
+
         // Arrange
         try {
             Mockito.doAnswer(in -> {
                 loadConfig();
-                appConfig.getDataSources().get("vision").setHealthQuery("https://invalid.com/");
+                appConfig.getDataSources().get(unhealthyDs).setHealthQuery("https://invalid.com/");
                 return null;
             }).when(configLoader).loadConfig();
 
@@ -82,20 +81,14 @@ public class HealthCheckServiceTests extends BaseTests {
             var hc = healthCheckService.getHealthCheck();
 
             // Assert
-            assertEquals(hc.isHealthy(), false);
-            var itemsToCheck = appConfig.getDataSources().size();
-            assertTrue(hc.getItems() == itemsToCheck);
-            assertTrue(hc.getHealthyItems() == (itemsToCheck - 1));
-            assertTrue(hc.getUnhealthyItems() == 1);
-            assertTrue(!hc.getElapsed().isEmpty());
-            assertTrue(!hc.getTimeStamp().isEmpty());
+            var pair = getTestDataSourceNames(new String[] {unhealthyDs});
+            assertTrue(validateHealthCheckItems(hc, pair.getValue0(), pair.getValue1()));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void loadConfig() {
@@ -110,8 +103,6 @@ public class HealthCheckServiceTests extends BaseTests {
             throw new RuntimeException(e);
         }
         override(originalConfig);
-
-
     }
 
     private void override(AppConfig localConfig) {

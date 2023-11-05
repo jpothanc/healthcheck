@@ -10,14 +10,14 @@ import static com.ibit.internal.Helper.*;
 @Setter
 @ToString
 public class HealthCheckInfo {
-    public String name;
-    public String description;
-    public String group;
-    public boolean isHealthy;
-    public String error;
-    public String link;
-    public String timestamp;
-    public String elapsed;
+    private String name;
+    private String description;
+    private String group;
+    private boolean isHealthy;
+    private String error;
+    private String link;
+    private String timestamp;
+    private String elapsed;
 
     public HealthCheckInfo() {
         isHealthy = false;
