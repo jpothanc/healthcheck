@@ -13,11 +13,12 @@ public class HealthCheckInfo {
     private String name;
     private String description;
     private String group;
+    private String wiki;
     private boolean isHealthy;
     private String error;
-    private String link;
     private String timestamp;
     private String elapsed;
+    private String healthQuery;
 
     public HealthCheckInfo() {
         isHealthy = false;
@@ -27,9 +28,10 @@ public class HealthCheckInfo {
         name = setting.getName();
         description = setting.getDescription();
         group = setting.getGroup();
+        healthQuery =setting.getHealthQuery();
         timestamp = getCurrentTime();
         error = "";
-        link = "";
+        wiki = "";
         elapsed="";
     }
 }
