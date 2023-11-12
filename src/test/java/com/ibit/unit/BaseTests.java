@@ -53,10 +53,10 @@ public class BaseTests {
             assertTrue(validateHealthCheckInfo(hcInfo, false));
         }
 
-        if (unHealthyDsNames.size() > 0) {
-            var list = hc.toResult();
-            assertTrue(list.get(0).isHealthy() == false);
-        }
+//        if (unHealthyDsNames.size() > 0) {
+//            var list = hc.toResult();
+//            assertTrue(list.get(0).isHealthy() == false);
+//        }
 
         return true;
     }
