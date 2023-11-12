@@ -54,6 +54,6 @@ public class HealthCheckInfoList {
                 return 0; // o1 and o2 are considered equal
             }
         };
-        this.healthCheckInfoSotredList.sort(comparator);
+        healthCheckInfoList.sort(comparator);
     }
 }

@@ -67,6 +67,7 @@ public class HealthController {
         healthCheckInfoList.setHealthy(false);
         healthCheckInfoList.setUnhealthyItems(1);
         healthCheckInfoList.setHealthyItems(healthCheckInfoList.getItems() -1);
+        healthCheckInfoList.toResult();
     }
 
     @MessageMapping(Constants.HEALTH_CHECK_SOCKET_INCOMING_MESSAGE)
