@@ -1,6 +1,5 @@
 package com.ibit.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibit.cache.MemoryCache;
 import com.ibit.config.AppConfig;
 import com.ibit.config.ConfigLoader;
@@ -9,22 +8,18 @@ import com.ibit.models.HealthCheckInfoList;
 import com.ibit.models.HealthCheckerInstances;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static com.ibit.internal.Constants.*;
+import static com.ibit.internal.Constants.CACHED_CHECKER_INSTANCES;
+import static com.ibit.internal.Constants.CACHED_HEALTH_CHECK_INFO;
 import static com.ibit.internal.Helper.getElapsedTime;
 
 @Service
@@ -43,16 +38,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     @Autowired
     MemoryCache<String, Object> memoryCache;
 
-    private final Environment environment;
-    private final ResourceLoader resourceLoader;
-    private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
     private Disposable disposable;
 
-    public HealthCheckServiceImpl(Environment environment, ResourceLoader resourceLoader, ObjectMapper objectMapper) {
-        this.environment = environment;
-        this.resourceLoader = resourceLoader;
-        this.objectMapper = objectMapper;
+    public HealthCheckServiceImpl() {
     }
 
     @Override
@@ -82,9 +71,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public HealthCheckInfoList getHealthCheck() throws IOException {
-        var res = runHealthCheck();
-        return res;
+    public HealthCheckInfoList getHealthCheck() {
+        return runHealthCheck();
     }
 
     private HealthCheckInfoList runHealthCheck() {
@@ -119,7 +107,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
                 if (previousHc != null && previousHc.getHealthCheckInfoMap().containsKey(key)) {
                     var prev = previousHc.getHealthCheckInfoMap().get(key);
-                    alert = alert && (prev.isHealthy() != res.isHealthy());
+                    alert = (prev.isHealthy() != res.isHealthy());
                 }
                 if(healthCheckInfoList.getHealthCheckInfoMap().containsKey(key))
                     continue;
@@ -128,10 +116,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
                 itemsChecked++;
                 logger.info("Health Check Result for " + key + " = " + res);
 
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -145,15 +129,14 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
         memoryCache.put(CACHED_HEALTH_CHECK_INFO, healthCheckInfoList);
 
-        if (alert) {
+       // if (alert) {
             logger.info("Health Check detected an change in health status.Sending notifications to clients.");
             sendNotification(healthCheckInfoList);
-        }
+       // }
         return healthCheckInfoList;
     }
 
     private Optional<HealthCheckerInstances> createHealthCheckerInstances() {
-        appConfig.getDataSources().keySet().forEach(x -> System.out.println(x.toString()));
         var dataSources = appConfig.getDataSources();
         if (dataSources == null) return Optional.of(null);
 
@@ -162,7 +145,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             var ds = appConfig.getDataSources().get(key);
             if (ds == null) continue;
             var checker = healthCheckFactory.getHealthChecker(ds);
-            if (!checker.isPresent()) {
+            if (checker.isEmpty()) {
                 logger.info("Could not create health checker for :" + ds.getName());
                 continue;
             }
@@ -171,8 +154,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return Optional.of(instances);
     }
 
+
+
     public void sendNotification(HealthCheckInfoList healthCheckInfoList) {
 
-        messagingTemplate.convertAndSend(HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION, healthCheckInfoList.toResult());
+        messagingTemplate.convertAndSend("/topic/healthCheck", healthCheckInfoList.toResult());
     }
 }

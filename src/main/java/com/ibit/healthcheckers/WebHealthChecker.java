@@ -18,7 +18,6 @@ public class WebHealthChecker implements HealthChecker {
     private DataSourceInfo dataSourceInfo;
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
-
     @Override
     public HealthChecker setDataSource(DataSourceInfo setting) {
         this.dataSourceInfo = setting;
@@ -52,9 +51,9 @@ public class WebHealthChecker implements HealthChecker {
             connection.setConnectTimeout(5000);
 
             int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpURLConnection.HTTP_OK)
                 res.setHealthy(true);
-            }
+
             connection.disconnect();
         } catch (Exception e) {
             res.setError("Ping Failed :" + e.getMessage());

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
+import java.util.Random;
 import java.io.IOException;
 
 
@@ -24,7 +24,7 @@ public class HealthController {
     @Autowired
     private HealthCheckService healthCheckService;
     private static final Logger logger = LoggerFactory.getLogger(HealthController.class);
-
+    private static boolean useMock = false;
     @GetMapping("/")
     public String info() {
         return "Health Check Service";
@@ -44,10 +44,34 @@ public class HealthController {
             throw new RuntimeException(e);
         }
     }
+    @GetMapping("/mock")
+    public Mono<ResponseEntity<HealthCheckInfoList>> getMockHealth() {
+
+        try {
+            var hc = healthCheckService.getHealthCheck();
+            useMock = !useMock;
+            if(useMock)
+                mockTransform(hc);
+            return Mono.just(ResponseEntity.ok(hc));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void mockTransform(HealthCheckInfoList healthCheckInfoList){
+        Random random = new Random();
+        var index = random.nextInt(4);
+        var hcItem = healthCheckInfoList.getHealthCheckInfoSotredList().get(index);
+        hcItem.setHealthy(false);
+        hcItem.setError("Service is down");
+        healthCheckInfoList.setHealthy(false);
+        healthCheckInfoList.setUnhealthyItems(1);
+        healthCheckInfoList.setHealthyItems(healthCheckInfoList.getItems() -1);
+    }
 
     @MessageMapping(Constants.HEALTH_CHECK_SOCKET_INCOMING_MESSAGE)
-    @SendTo(Constants.HEALTH_CHECK_SOCKET_RESPONSE_DESTINATION)
-    public HealthCheckInfoList notification(HealthCheckInfoList notification) {
+    @SendTo("/topic/healthCheck")
+    public HealthCheckInfoList healthCheck(HealthCheckInfoList notification) {
 
         try {
             logger.info("Sending Notification:" + notification.getHealthCheckInfoMap());

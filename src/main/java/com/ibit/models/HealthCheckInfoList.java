@@ -32,7 +32,7 @@ public class HealthCheckInfoList {
         this.healthCheckInfoSotredList = new ArrayList<>(50);
     }
 
-    public List<HealthCheckInfo> toResult(){
+    public HealthCheckInfoList toResult(){
 
         this.healthCheckInfoSotredList.clear();
         setTimeStamp(getCurrentTime());
@@ -40,7 +40,7 @@ public class HealthCheckInfoList {
 
         this.healthCheckInfoSotredList = new ArrayList<>(this.healthCheckInfoMap.values());
         sortOnHealthStatus(this.healthCheckInfoSotredList);
-        return  this.healthCheckInfoSotredList;
+        return this;
     }
 
     private void sortOnHealthStatus(List<HealthCheckInfo> healthCheckInfoList){
