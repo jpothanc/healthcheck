@@ -6,7 +6,7 @@ import com.ibit.models.HealthCheckInfo;
 import java.util.concurrent.CompletableFuture;
 
 public interface HealthChecker {
-    HealthChecker setDataSource(DataSourceInfo setting);
+    HealthChecker setDataSource(DataSourceInfo dsInfo);
 
     DataSourceInfo getDataSource();
 

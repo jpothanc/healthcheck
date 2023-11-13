@@ -39,13 +39,13 @@ public class WebHealthChecker implements HealthChecker {
         return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
 
-    private HealthCheckInfo pingInternal(DataSourceInfo setting) {
+    private HealthCheckInfo pingInternal(DataSourceInfo dsInfo) {
 
-        var res = new HealthCheckInfo(setting);
+        var res = new HealthCheckInfo(dsInfo);
         long startTime = System.currentTimeMillis();
 
         try {
-            URL url = new URL(setting.getHealthQuery());
+            URL url = new URL(dsInfo.getHealthQuery());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);

@@ -40,20 +40,20 @@ public class DbHealthChecker implements HealthChecker {
         return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
 
-    private HealthCheckInfo pingInternal(DataSourceInfo setting) {
+    private HealthCheckInfo pingInternal(DataSourceInfo dsInfo) {
 
-        var res = new HealthCheckInfo(setting);
+        var res = new HealthCheckInfo(dsInfo);
         long startTime = System.currentTimeMillis();
 
         try (Connection connection = DriverManager.getConnection(
-                setting.getConnectionString(),
-                setting.getUsername(),
-                setting.getPassword())) {
+                dsInfo.getConnectionString(),
+                dsInfo.getUsername(),
+                dsInfo.getPassword())) {
             if (connection != null) {
                 System.out.println("Connected to the database");
                 Statement statement = connection.createStatement();
 
-                String sqlQuery = setting.getHealthQuery();
+                String sqlQuery = dsInfo.getHealthQuery();
                 ResultSet resultSet = statement.executeQuery(sqlQuery);
                 ResultSetMetaData metaData = resultSet.getMetaData();
 

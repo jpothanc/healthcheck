@@ -75,6 +75,7 @@ public class BaseTests {
         assertFalse(hcInfo.getElapsed().isEmpty());
         assertFalse(hcInfo.getDescription().isEmpty());
         assertFalse(hcInfo.getHealthQuery().isEmpty());
+        assertFalse(hcInfo.getWiki().isEmpty());
         return true;
     }
 

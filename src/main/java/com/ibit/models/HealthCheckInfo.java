@@ -23,15 +23,15 @@ public class HealthCheckInfo {
     public HealthCheckInfo() {
         isHealthy = false;
     }
-    public HealthCheckInfo(DataSourceInfo setting) {
+    public HealthCheckInfo(DataSourceInfo dsInfo) {
         isHealthy = false;
-        name = setting.getName();
-        description = setting.getDescription();
-        group = setting.getGroup();
-        healthQuery =setting.getHealthQuery();
+        name = dsInfo.getName();
+        description = dsInfo.getDescription();
+        group = dsInfo.getGroup();
+        healthQuery =dsInfo.getHealthQuery();
         timestamp = getCurrentTime();
         error = "";
-        wiki = "";
+        wiki = dsInfo.getWiki();
         elapsed="";
     }
 }

@@ -16,6 +16,7 @@ public class DataSourceInfo {
     private String username;
     private String password;
     private String healthQuery;
+    private String wiki;
 
     public String getConnectionString() {
         return String.format(connectionString, username, password);
