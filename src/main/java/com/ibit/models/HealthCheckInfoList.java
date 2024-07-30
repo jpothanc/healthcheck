@@ -2,6 +2,7 @@ package com.ibit.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import static com.ibit.internal.Helper.getCurrentTime;
 
 @Setter
 @Getter
+@Builder
 public class HealthCheckInfoList {
 
     private boolean isHealthy;
@@ -21,25 +23,23 @@ public class HealthCheckInfoList {
     private String elapsed;
 
     @JsonProperty("healthCheckItems")
-    private List<HealthCheckInfo> healthCheckInfoSotredList;
+    private List<HealthCheckInfo> healthCheckInfoSortedList ;
 
     @JsonIgnore
     private Map<String, HealthCheckInfo> healthCheckInfoMap;
 
-
-    public HealthCheckInfoList() {
-        this.healthCheckInfoMap = new HashMap<>();
-        this.healthCheckInfoSotredList = new ArrayList<>(50);
-    }
-
     public HealthCheckInfoList toResult(){
 
-        this.healthCheckInfoSotredList.clear();
+        if(this.healthCheckInfoSortedList == null){
+            this.healthCheckInfoSortedList = new ArrayList<>(50);
+        }
+
+        this.healthCheckInfoSortedList.clear();
         setTimeStamp(getCurrentTime());
         setUnhealthyItems(items - healthyItems);
 
-        this.healthCheckInfoSotredList = new ArrayList<>(this.healthCheckInfoMap.values());
-        sortOnHealthStatus(this.healthCheckInfoSotredList);
+        this.healthCheckInfoSortedList = new ArrayList<>(this.healthCheckInfoMap.values());
+        sortOnHealthStatus(this.healthCheckInfoSortedList);
         return this;
     }
 

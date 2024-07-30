@@ -2,15 +2,27 @@ package com.ibit.healthcheckers;
 
 import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
+import lombok.Getter;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface HealthChecker {
-    HealthChecker setDataSource(DataSourceInfo dsInfo);
+@Getter
+public abstract class HealthChecker {
 
-    DataSourceInfo getDataSource();
+    protected DataSourceInfo dataSourceInfo;
 
-    String getName();
+    public DataSourceInfo getDataSource() {
+        return this.dataSourceInfo;
+    }
 
-    CompletableFuture<HealthCheckInfo> ping();
+    public HealthChecker setDataSource(DataSourceInfo dsInfo) {
+        this.dataSourceInfo = dsInfo;
+        return this;
+    }
+
+    public String getName() {
+        return this.dataSourceInfo.getName();
+    }
+
+    public abstract CompletableFuture<HealthCheckInfo> ping();
 }

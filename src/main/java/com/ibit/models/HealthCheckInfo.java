@@ -10,6 +10,7 @@ import static com.ibit.internal.Helper.*;
 @Setter
 @ToString
 public class HealthCheckInfo {
+
     private String name;
     private String description;
     private String group;

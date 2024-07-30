@@ -2,7 +2,6 @@ package com.ibit.healthcheckers;
 
 import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
-import com.ibit.services.HealthCheckServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,28 +11,13 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.ibit.internal.Helper.getElapsedTime;
 
+/****************************************************************************************
+ * DbHealthChecker is a concrete implementation of the HealthChecker interface.
+ * The class provides methods to ping the database and return the health check information.
+ ****************************************************************************************/
 @Component("database")
-public class DbHealthChecker implements HealthChecker {
-
-    private DataSourceInfo dataSourceInfo;
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
-
-
-    @Override
-    public HealthChecker setDataSource(DataSourceInfo setting) {
-        this.dataSourceInfo = setting;
-        return this;
-    }
-
-    @Override
-    public DataSourceInfo getDataSource() {
-        return this.dataSourceInfo;
-    }
-
-    @Override
-    public String getName() {
-        return this.dataSourceInfo.getName();
-    }
+public class DbHealthChecker extends HealthChecker {
+    private static final Logger logger = LoggerFactory.getLogger(DbHealthChecker.class);
 
     @Override
     public CompletableFuture<HealthCheckInfo> ping() {
@@ -49,6 +33,7 @@ public class DbHealthChecker implements HealthChecker {
                 dsInfo.getConnectionString(),
                 dsInfo.getUsername(),
                 dsInfo.getPassword())) {
+
             if (connection != null) {
                 System.out.println("Connected to the database");
                 Statement statement = connection.createStatement();
@@ -68,7 +53,7 @@ public class DbHealthChecker implements HealthChecker {
         } catch (SQLException e) {
             res.setError("Ping Failed :" + e.getMessage());
             logger.error(res.getError());
-        }finally {
+        } finally {
             res.setElapsed(getElapsedTime(startTime));
         }
 

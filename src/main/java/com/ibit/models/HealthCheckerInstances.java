@@ -10,7 +10,9 @@ import java.util.List;
 @Setter
 @Getter
 public class HealthCheckerInstances {
+
     private List<HealthChecker> healthCheckers;
+
     public HealthCheckerInstances() {
         this.healthCheckers = new ArrayList<>(50);
     }

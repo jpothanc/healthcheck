@@ -5,12 +5,15 @@ import com.ibit.healthcheckers.HealthChecker;
 import com.ibit.healthcheckers.WebHealthChecker;
 import com.ibit.internal.Constants;
 import com.ibit.models.DataSourceInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/****************************************************************************************
+ * Factory class to create health checkers based on the group of the data source.
+ * if the group is web, it creates a WebHealthChecker instance.
+ * if the group is db, it creates a DbHealthChecker instance.
+ ****************************************************************************************/
 @Service
 public class HealthCheckFactoryImpl implements HealthCheckFactory{
 
