@@ -12,7 +12,6 @@ import java.util.List;
 public class HealthCheckerInstances {
 
     private List<HealthChecker> healthCheckers;
-
     public HealthCheckerInstances() {
         this.healthCheckers = new ArrayList<>(50);
     }

@@ -13,6 +13,10 @@ import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
 
+/****************************************************************************************
+ * ConfigLoader is a configuration loader class.
+ * The class loads the application configuration from the appsettings.json file based on the active profile.
+ ****************************************************************************************/
 @Configuration
 public class ConfigLoader {
     @Value("${spring.profiles.active}")

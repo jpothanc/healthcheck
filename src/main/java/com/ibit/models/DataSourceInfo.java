@@ -8,6 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class DataSourceInfo {
+
     private String name;
     private String description;
     private String group;

@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Scope;
 import java.util.HashMap;
 import java.util.Map;
 
+/****************************************************************************************
+ * AppConfig is a configuration class.
+ * The class holds the application configuration.
+ * Configuration is loaded from the appsettings.json file based on the active profile.
+ ****************************************************************************************/
 @Configuration
 @Scope("singleton")
 @Getter

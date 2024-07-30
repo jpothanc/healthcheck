@@ -3,6 +3,8 @@ package com.ibit.controllers;
 import com.ibit.internal.Constants;
 import com.ibit.models.HealthCheckInfoList;
 import com.ibit.services.HealthCheckService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import java.util.Random;
 @RestController
 @RequestMapping("api/v1/health")
 @CrossOrigin(origins = "*") // Allow all origins
+@Tag(name = "Health Check Service", description = "API for Health Check Service")
 public class HealthController {
 
     @Autowired
@@ -33,11 +36,13 @@ public class HealthController {
         return "Health Check Service";
     }
 
-    @GetMapping("/ping")
+    @Operation(summary = "Health Check Service Ping", description = "Health Check Service Ping")
+    @GetMapping("ping")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("healthy");
     }
 
+    @Operation(summary = "Health Check Service Check", description = "Get all health check information")
     @GetMapping("/check")
     public Mono<ResponseEntity<HealthCheckInfoList>> getHealth() {
 
@@ -47,6 +52,7 @@ public class HealthController {
             throw new RuntimeException(e);
         }
     }
+    @Operation(summary = "Health Check Service Mock", description = "Get all health check information with mock data")
     @GetMapping("/mock")
     public Mono<ResponseEntity<HealthCheckInfoList>> getMockHealth() {
 
