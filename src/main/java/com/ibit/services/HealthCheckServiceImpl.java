@@ -4,22 +4,27 @@ import com.ibit.cache.MemoryCache;
 import com.ibit.config.AppConfig;
 import com.ibit.config.ConfigLoader;
 import com.ibit.factory.HealthCheckFactory;
+import com.ibit.healthcheckers.HealthChecker;
 import com.ibit.models.HealthCheckInfo;
 import com.ibit.models.HealthCheckInfoList;
 import com.ibit.models.HealthCheckerInstances;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.ibit.internal.Constants.CACHED_CHECKER_INSTANCES;
 import static com.ibit.internal.Constants.CACHED_HEALTH_CHECK_INFO;
@@ -33,8 +38,9 @@ import static com.ibit.internal.Helper.getElapsedTime;
  ****************************************************************************************/
 @Service
 @EnableScheduling
+@Slf4j
 public class HealthCheckServiceImpl implements HealthCheckService {
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
+    public boolean testHealthy = false;
     private ConfigLoader configLoader;
     private AppConfig appConfig;
     private HealthCheckFactory healthCheckFactory;
@@ -59,16 +65,16 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     public void start() {
 
         try {
-            logger.info("Starting HealthCheckService.");
+            log.info("Starting HealthCheckService.");
             configLoader.loadConfig();
 
-            logger.info("Health Check Timer Enabled = " + appConfig.isEnableHealthCheckTimer());
+            log.info("Health Check Timer Enabled = " + appConfig.isEnableHealthCheckTimer());
             if (appConfig.isEnableHealthCheckTimer()) {
                 enableHealthCheckTimer();
             }
 
         } catch (Exception e) {
-            logger.error("HealthCheckService Initialization failed." + e.getMessage());
+            log.error("HealthCheckService Initialization failed." + e.getMessage());
         }
     }
 
@@ -76,7 +82,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     public void stop() {
 
         this.disposable.dispose();
-        logger.info("Stopping HealthCheckService.");
+        log.info("Stopping HealthCheckService.");
     }
 
     /**
@@ -99,10 +105,62 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     /**
+     * Run health check for all data sources using reactive programming with RxJava.
+     *
+     * @param healthCheckers
+     * @return List of HealthCheckInfo
+     */
+    private List<HealthCheckInfo> runHealthCheckReactive(List<HealthChecker> healthCheckers) {
+
+        List<Observable<HealthCheckInfo>> observables = healthCheckers.stream()
+                .map(HealthChecker::ping)
+                .map(Observable::fromFuture)
+                .toList();
+
+        try {
+            return
+                    Observable.merge(observables)
+                            .toList()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.single()).blockingGet();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Run health check for all data sources using classic Java CompletableFuture.
+     *
+     * @param healthCheckers
+     * @return List of HealthCheckInfo
+     */
+    private List<HealthCheckInfo> runHealthCheckClassic(List<HealthChecker> healthCheckers) {
+
+        var futures = healthCheckers.stream()
+                .map(HealthChecker::ping)
+                .collect(Collectors.toList());
+
+        var allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList()));
+
+        try {
+            return allOf.get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Run health check for all data sources.
      * The method creates health checker instances for all data sources and runs health check for each data source.
      * It compares the health check results with the previous health check results and sends notifications to clients if there is a change in health status.
      * The health check results are stored in the memory cache for the next health check.
+     *
      * @return
      */
     private HealthCheckInfoList runHealthCheck() {
@@ -110,64 +168,67 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         var healthCheckerInstances = (HealthCheckerInstances) memoryCache.get(CACHED_CHECKER_INSTANCES);
         if (healthCheckerInstances == null) {
             healthCheckerInstances = createHealthCheckerInstances().orElse(new HealthCheckerInstances());
-            logger.info("Creating Health Checker Instances : " + healthCheckerInstances.getHealthCheckers().size());
+            log.info("Creating Health Checker Instances : " + healthCheckerInstances.getHealthCheckers().size());
         }
+        long startTime = System.currentTimeMillis();
 
+        var results = runHealthCheckClassic(healthCheckerInstances.getHealthCheckers());
+        if (results == null) return null;
 
-        Map<String, HealthCheckInfo> healthCheckInfoMap = new HashMap<>();
+        var healthCheckInfoList = processHealthCheckInfoList(results, startTime);
+
+        return healthCheckInfoList;
+    }
+
+    private HealthCheckInfoList processHealthCheckInfoList(List<HealthCheckInfo> results, long startTime) {
+        var isHealthy = true;
+        var alert = false;
+        var healthyItems = 0;
+        var itemsChecked = 0;
+
         var previousHc = (HealthCheckInfoList) memoryCache.get(CACHED_HEALTH_CHECK_INFO);
         if (previousHc != null) {
             System.out.println("Previous Count: " + previousHc.getHealthCheckInfoMap().size());
         }
 
-        boolean isHealthy = true;
-        boolean alert = false;
-        int healthyItems = 0;
-        int itemsChecked = 0;
-        long startTime = System.currentTimeMillis();
-        for (var checker : healthCheckerInstances.getHealthCheckers()) {
+        Map<String, HealthCheckInfo> healthCheckInfoMap = new HashMap<>();
+        for (var checker : results) {
+            var key = checker.getName();
+            if (checker.isHealthy())
+                healthyItems++;
 
-            try {
+            isHealthy = isHealthy && checker.isHealthy();
 
-                var key = checker.getName();
-                var res = checker.ping().get();
-                if (res.isHealthy())
-                    healthyItems++;
+            if (previousHc != null && previousHc.getHealthCheckInfoMap().containsKey(key)) {
+                var prev = previousHc.getHealthCheckInfoMap().get(key);
+                alert = (prev.isHealthy() != checker.isHealthy());
+            }
+            if (healthCheckInfoMap.containsKey(key))
+                continue;
 
-                isHealthy = isHealthy && res.isHealthy();
-
-                if (previousHc != null && previousHc.getHealthCheckInfoMap().containsKey(key)) {
-                    var prev = previousHc.getHealthCheckInfoMap().get(key);
-                    alert = (prev.isHealthy() != res.isHealthy());
-                }
-                if (healthCheckInfoMap.containsKey(key))
-                    continue;
-
-                healthCheckInfoMap.put(key, res);
-                itemsChecked++;
-                logger.info("Health Check Result for " + key + " = " + res);
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (checker.getName().equals("Vision")) {
+                testHealthy = !testHealthy;
+                checker.setHealthy(testHealthy);
             }
 
+            healthCheckInfoMap.put(key, checker);
+            itemsChecked++;
         }
-
-        var healthCheckInfoList = HealthCheckInfoList.builder().
-                healthCheckInfoMap(healthCheckInfoMap).
-                isHealthy(isHealthy).
-                elapsed(getElapsedTime(startTime)).
-                items(itemsChecked).
-                healthyItems(healthyItems)
+        var healthCheckInfoList = HealthCheckInfoList.builder()
+                .healthCheckInfoMap(healthCheckInfoMap)
+                .isHealthy(isHealthy)
+                .elapsed(getElapsedTime(startTime))
+                .items(itemsChecked)
+                .healthyItems(healthyItems)
                 .build().toResult();
 
         memoryCache.put(CACHED_HEALTH_CHECK_INFO, healthCheckInfoList);
-
         //commented out the alert check for testing purposes
         // if (alert) {
-        logger.info("Health Check detected an change in health status.Sending notifications to clients.");
+        log.info("Health Check detected an change in health status.Sending notifications to clients.");
         sendNotification(healthCheckInfoList);
         // }
+
         return healthCheckInfoList;
     }
 
@@ -188,7 +249,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             if (ds == null) continue;
             var checker = healthCheckFactory.getHealthChecker(ds);
             if (checker.isEmpty()) {
-                logger.info("Could not create health checker for :" + ds.getName());
+                log.info("Could not create health checker for :" + ds.getName());
                 continue;
             }
             instances.getHealthCheckers().add(checker.get());

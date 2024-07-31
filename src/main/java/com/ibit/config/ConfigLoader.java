@@ -1,9 +1,7 @@
 package com.ibit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibit.services.HealthCheckServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +16,7 @@ import java.io.IOException;
  * The class loads the application configuration from the appsettings.json file based on the active profile.
  ****************************************************************************************/
 @Configuration
+@Slf4j
 public class ConfigLoader {
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -27,7 +26,6 @@ public class ConfigLoader {
     private final Environment environment;
     private final ResourceLoader resourceLoader;
     private final ObjectMapper objectMapper;
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
     @Autowired
     public ConfigLoader(Environment environment, ResourceLoader resourceLoader, ObjectMapper objectMapper) {
@@ -39,7 +37,7 @@ public class ConfigLoader {
 
     public void loadConfig() throws IOException {
         String configFile = "classpath:appsettings-" + activeProfile + ".json";
-        logger.info("Loading configuration : " + configFile);
+        log.info("Loading configuration : " + configFile);
 
         Resource resource = resourceLoader.getResource(configFile);
         var appConfig = objectMapper.readValue(resource.getInputStream(), AppConfig.class);

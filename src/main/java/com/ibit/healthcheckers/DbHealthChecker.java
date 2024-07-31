@@ -2,8 +2,7 @@ package com.ibit.healthcheckers;
 
 import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -16,8 +15,9 @@ import static com.ibit.internal.Helper.getElapsedTime;
  * The class provides methods to ping the database and return the health check information.
  ****************************************************************************************/
 @Component("database")
+@Slf4j
 public class DbHealthChecker extends HealthChecker {
-    private static final Logger logger = LoggerFactory.getLogger(DbHealthChecker.class);
+    public static boolean healthy = false;
 
     @Override
     public CompletableFuture<HealthCheckInfo> ping() {
@@ -28,6 +28,8 @@ public class DbHealthChecker extends HealthChecker {
 
         var res = new HealthCheckInfo(dsInfo);
         long startTime = System.currentTimeMillis();
+
+        healthy = !healthy;
 
         try (Connection connection = DriverManager.getConnection(
                 dsInfo.getConnectionString(),
@@ -52,7 +54,7 @@ public class DbHealthChecker extends HealthChecker {
             }
         } catch (SQLException e) {
             res.setError("Ping Failed :" + e.getMessage());
-            logger.error(res.getError());
+            log.error(res.getError());
         } finally {
             res.setElapsed(getElapsedTime(startTime));
         }

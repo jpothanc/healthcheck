@@ -5,8 +5,7 @@ import com.ibit.models.HealthCheckInfoList;
 import com.ibit.services.HealthCheckService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,11 +24,11 @@ import java.util.Random;
 @RequestMapping("api/v1/health")
 @CrossOrigin(origins = "*") // Allow all origins
 @Tag(name = "Health Check Service", description = "API for Health Check Service")
+@Slf4j
 public class HealthController {
 
     @Autowired
     private HealthCheckService healthCheckService;
-    private static final Logger logger = LoggerFactory.getLogger(HealthController.class);
     private static boolean useMock = false;
     @GetMapping("/")
     public String info() {
@@ -91,7 +90,7 @@ public class HealthController {
     public HealthCheckInfoList healthCheck(HealthCheckInfoList notification) {
 
         try {
-            logger.info("Sending Notification:" + notification.getHealthCheckInfoMap());
+            log.info("Sending Notification:" + notification.getHealthCheckInfoMap());
             return notification;
         } catch (Exception e) {
             throw new RuntimeException(e);

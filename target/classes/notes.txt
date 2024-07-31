@@ -1,0 +1,57 @@
+- Ability to do health check on microservices, databases and process
+- DataSources will be configured for microservices and databases
+- For process, an agent should written, which will locally scan task manager or try using process management tools like PM2
+- Service will scan the health every 5-10 mins( configurable). If there is change in state of any previous state notify the
+  clients of the effected process. It could send the whole payload or the delta payload(only process which are affected) based on configurations
+- If needed, it can also send an email
+- It will support rest api and a websocket for real time notifications
+
+CREATE TABLE Users (
+	username	TEXT,
+	fullname	TEXT,
+	desk	TEXT,
+	retired	INTEGER,
+	poweruser	INTEGER,
+	comments	TEXT,
+	datecreated	TEXT,
+	PRIMARY KEY(username)
+)
+INSERT into Users VALUES('jryan','Jack Ryan','HKDEALING',0,1,'','20231609');
+INSERT into Users VALUES('ppan','Peter Pan','TKSALES',0,1,'','20231609');
+INSERT into Users VALUES('rverma','Raj Verma','TKDEALING',0,1,'','20231609');
+INSERT into Users VALUES('pscott','Philip Scott','SYSALES',0,1,'','20231609');
+
+CREATE TABLE Desks (
+	deskname	TEXT,
+	description	TEXT,
+	country	TEXT,
+	defaultuser	TEXT,
+	readonly	INTEGER,
+	contact	    TEXT,
+	comments	TEXT,
+	datecreated	TEXT,
+	PRIMARY KEY(deskname)
+)
+INSERT into Desks VALUES('HKDEALING','HK Dealing Desk','HKG','jryan','0','support','','20232310');
+
+INSERT into Desks VALUES('TKSALES','HK Sales Desk','TYO','ppan','0','tk support','','20232310');
+
+INSERT into Desks VALUES('TKDEALING','TK Dealing Desk','TYO','rverma','0','tk support','','20232310');
+INSERT into Desks VALUES('SYSALES','Australia Sales Desk','AUS','pscott','0','au support','','20232310');
+
+
+CREATE TABLE Stocks (
+	riccode	   varchar(15),
+	name	   varchar(32),
+	country	   varchar(10),
+	exchange   varchar(10),
+	lostsize   INTEGER,
+	currency   varchar(10),
+	sector	   varchar(20),
+	5dayAvgVolume  INTEGER ,
+	20dayAvgVolume INTEGER,
+	PRIMARY KEY(riccode)
+)
+
+
+INSERT INTO Stocks Values('0005.HK','HSBC HOLDINGS','HK','HKG',400,'HKD','FINANCIALS',250000,1500000);

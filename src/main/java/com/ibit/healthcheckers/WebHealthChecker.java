@@ -2,8 +2,7 @@ package com.ibit.healthcheckers;
 
 import com.ibit.models.DataSourceInfo;
 import com.ibit.models.HealthCheckInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
@@ -17,10 +16,8 @@ import static com.ibit.internal.Helper.getElapsedTime;
  * The class provides methods to ping the web server and return the health check information.
  ****************************************************************************************/
 @Component("web")
+@Slf4j
 public class WebHealthChecker extends HealthChecker {
-    private static final Logger logger = LoggerFactory.getLogger(WebHealthChecker.class);
-
-
     public CompletableFuture<HealthCheckInfo> ping() {
         return CompletableFuture.supplyAsync(() -> pingInternal(this.dataSourceInfo));
     }
@@ -43,7 +40,7 @@ public class WebHealthChecker extends HealthChecker {
 
         } catch (Exception e) {
             res.setError("Ping Failed :" + e.getMessage());
-            logger.error(res.getError());
+            log.error(res.getError());
         } finally {
             res.setElapsed(getElapsedTime(startTime));
         }
