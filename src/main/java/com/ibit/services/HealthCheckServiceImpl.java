@@ -206,10 +206,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             if (healthCheckInfoMap.containsKey(key))
                 continue;
 
-            if (checker.getName().equals("Vision")) {
-                testHealthy = !testHealthy;
-                checker.setHealthy(testHealthy);
-            }
+//            if (checker.getName().equals("Vision")) {
+//                testHealthy = !testHealthy;
+//                checker.setHealthy(testHealthy);
+//            }
 
             healthCheckInfoMap.put(key, checker);
             itemsChecked++;
