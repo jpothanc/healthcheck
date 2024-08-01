@@ -161,7 +161,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
      * It compares the health check results with the previous health check results and sends notifications to clients if there is a change in health status.
      * The health check results are stored in the memory cache for the next health check.
      *
-     * @return
+     * @return HealthCheckInfoList
      */
     private HealthCheckInfoList runHealthCheck() {
 
@@ -192,26 +192,22 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         Map<String, HealthCheckInfo> healthCheckInfoMap = new HashMap<>();
-        for (var checker : results) {
-            var key = checker.getName();
-            if (checker.isHealthy())
+        for (var healthCheckInfo : results) {
+            var key = healthCheckInfo.getName();
+            if (healthCheckInfo.isHealthy())
                 healthyItems++;
 
-            isHealthy = isHealthy && checker.isHealthy();
+            testUnhealthy(healthCheckInfo);
+
+            isHealthy = isHealthy && healthCheckInfo.isHealthy();
 
             if (previousHc != null && previousHc.getHealthCheckInfoMap().containsKey(key)) {
                 var prev = previousHc.getHealthCheckInfoMap().get(key);
-                alert = (prev.isHealthy() != checker.isHealthy());
+                alert = (prev.isHealthy() != healthCheckInfo.isHealthy());
             }
             if (healthCheckInfoMap.containsKey(key))
                 continue;
-
-//            if (checker.getName().equals("Vision")) {
-//                testHealthy = !testHealthy;
-//                checker.setHealthy(testHealthy);
-//            }
-
-            healthCheckInfoMap.put(key, checker);
+            healthCheckInfoMap.put(key, healthCheckInfo);
             itemsChecked++;
         }
         var healthCheckInfoList = HealthCheckInfoList.builder()
@@ -223,13 +219,27 @@ public class HealthCheckServiceImpl implements HealthCheckService {
                 .build().toResult();
 
         memoryCache.put(CACHED_HEALTH_CHECK_INFO, healthCheckInfoList);
-        //commented out the alert check for testing purposes
-        // if (alert) {
-        log.info("Health Check detected an change in health status.Sending notifications to clients.");
-        sendNotification(healthCheckInfoList);
-        // }
+
+        if (alert) {
+            log.info("Health Check detected an change in health status.Sending notifications to clients.");
+            sendNotification(healthCheckInfoList);
+        }
 
         return healthCheckInfoList;
+    }
+
+    /**
+     * Test method to simulate unhealthy health check results.
+     * The method toggles the health status of the Vision data source.
+     * The method is used for testing purposes only.
+     *
+     * @param info
+     */
+    private void testUnhealthy(HealthCheckInfo info) {
+        if (info.getName().equals("Vision")) {
+            testHealthy = !testHealthy;
+            info.setHealthy(testHealthy);
+        }
     }
 
     /**
