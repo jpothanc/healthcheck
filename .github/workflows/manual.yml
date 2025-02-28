@@ -11,6 +11,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Set Environment Variables from GitHub Secrets
+        env:
+          HC_ENCRYPTION_KEY: ${{ secrets.HC_ENCRYPTION_KEY }}
+        run: echo "Using secret key..."
 
       - name: Set up Java
         uses: actions/setup-java@v3
