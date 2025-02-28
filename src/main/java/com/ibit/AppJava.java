@@ -1,5 +1,6 @@
 package com.ibit;
 
+import com.ibit.services.EncryptionService;
 import com.ibit.services.HealthCheckService;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;

@@ -37,7 +37,7 @@ public class DbHealthChecker extends HealthChecker {
                 dsInfo.getPassword())) {
 
             if (connection != null) {
-                System.out.println("Connected to the database");
+                System.out.println("Connected to the database" + dsInfo.getName());
                 Statement statement = connection.createStatement();
 
                 String sqlQuery = dsInfo.getHealthQuery();
