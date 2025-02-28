@@ -12,11 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set Environment Variables from GitHub Secrets
-        env:
-          HC_ENCRYPTION_KEY: ${{ secrets.HC_ENCRYPTION_KEY }}
-        run: echo "Using secret key..."
-
+      
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -24,6 +20,8 @@ jobs:
            java-version: '17'
 
       - name: Build JAR file
+        env:
+          HC_ENCRYPTION_KEY: ${{ secrets.HC_ENCRYPTION_KEY }}
         run: mvn clean package
 
       - name: Upload JAR file to Azure
